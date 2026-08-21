@@ -4,6 +4,16 @@ These instructions apply to every `SKILL.md` under `commands-src/`.
 
 Write skills as compact executable workflow specifications, not essays. The agent should be able to read the skill and know what to do, when to branch, when to stop, and what result to return without inventing a second workflow.
 
+## Design philosophy
+
+Agents already have general capability. A `q-*` skill exists to make a recurring, consequential decision or state transition more reliable—not to re-teach ordinary work.
+
+- Default to agent freedom. Add constraints only where they reduce material risk, ambiguity, repeated misjudgment, or handoff cost.
+- Start from observable state and evidence. Do not promote a claim beyond what can be verified; unknown remains unknown.
+- Define purpose, responsibility boundary, stop condition, and proof of success. Leave context-dependent implementation choices to the agent and repository.
+- Treat handoff as a real change of responsibility or state, never as mandatory ceremony.
+- Let complexity be earned by observed recurring friction. If a skill adds more ceremony than reliability, simplify, merge, or remove it.
+
 ## Core style
 
 - Keep one skill focused on one job. Prefer around 100 lines when practical; clarity and correct branching matter more than a hard line limit.
