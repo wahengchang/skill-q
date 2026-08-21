@@ -60,6 +60,7 @@ Turn finished work into one clean pull request. `q-ship` owns delivery; it does 
 - Do not rerun expensive checks only for ceremony when a still-valid machine result already proves the same final content.
 - Do not force-push, rewrite shared history, resolve ambiguous merge conflicts, or make destructive release decisions without explicit instruction.
 - Do not merge the PR. Shipping ends when the branch is pushed and the PR is created or updated unless the user explicitly asks for merge as a separate action.
+- Do not run `q-housekeeping` before the PR is merged. The shipped branch and its worktree remain active delivery state until merge.
 
 ## Handoff
 
@@ -70,8 +71,10 @@ State: shipped
 PR: <url>
 Verification: <command/result or reused evidence>
 Remaining risk: none | <short note>
-Next: await merge
+Next: await merge, then q-housekeeping
 ```
+
+Treat `q-housekeeping` as the optional post-merge handoff for removing finished local branches, worktrees, and stale worktree metadata. Mention the handoff; do not invoke it automatically or imply that cleanup is safe before merge.
 
 If blocked, return:
 
