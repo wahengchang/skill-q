@@ -1,6 +1,6 @@
 # skill-q Architecture
 
-框架繼承自 [skill-x-starter](https://github.com/wahengchang/skill-x-starter)；skill-q 只改變技能集合（全部 `y-` prefix、quick／lightweight），lifecycle 機制維持一致。
+框架繼承自 [skill-x-starter](https://github.com/wahengchang/skill-x-starter)；skill-q 只改變技能集合（全部 `q-` prefix、quick／lightweight），lifecycle 機制維持一致。
 
 ## 1. Goal
 
@@ -13,6 +13,7 @@
 3. **deployment ownership is explicit**：manifest，而不是路徑猜測，是唯一 ownership proof。
 4. **runtime differences live at the edge**：共同 canonical build 與 target adapters 分離。
 5. **updates are conservative**：fetch + preview + fast-forward only；dirty/diverged 不自動處理。
+6. **quick means low ceremony**：skills 保持單一職責、按需探索、直接 handoff；不要把 heavyweight workflow state 搬回來。
 
 ## 2. Data flow
 
