@@ -1,6 +1,6 @@
 # Codex Development Instructions
 
-- skill-q ships quick, lightweight skills. Every skill in `commands-src/` is named with the `y-` prefix (`y-<name>`), and the folder name must match frontmatter `name:`. Keep each `SKILL.md` short and single-purpose.
+- skill-q ships quick, lightweight skills. Every skill in `commands-src/` is named with the `q-` prefix (`q-<name>`), and the folder name must match frontmatter `name:`. Keep each `SKILL.md` focused, low-ceremony, and directly executable.
 - `commands-src/` and `_shared/` are the only tracked skill build inputs. Skill content lives in `commands-src/<name>/SKILL.md`; `_shared/update-check-header.md` is inserted into every generated skill.
 - Generated `commands/`, `opencode-commands/`, and future artifact trees are disposable build outputs declared in `.gitignore`. Never hand-edit or commit them.
 - After changing a skill or shared header, run `bin/build.sh`, then `make test` (the fast subset). Changes under `bin/`, `tests/`, or `bin/targets/` require `make test-full`.
