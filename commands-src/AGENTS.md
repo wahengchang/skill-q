@@ -33,6 +33,8 @@ Exceptions are intentional:
 
 - Planning skills (`q-plan`, `q-plan-*`) hand off to implementation, not directly to `q-ship`.
 - `q-review` is optional and read-only. A clean second opinion may hand off to `q-ship`; findings return to the implementer or `q-debug`.
+- `q-ship` may point to `q-housekeeping` as an optional post-merge handoff. It must not run cleanup before merge or make housekeeping a mandatory shipping stage.
+- Terminal skills such as `q-example` and `q-housekeeping` do not need a ceremonial handoff.
 - A skill must not hand off unfinished or unverified work to `q-ship`.
 
 When a handoff exists, make the expected next step explicit near the end. Keep it short; do not create a separate artifact merely to record it.
