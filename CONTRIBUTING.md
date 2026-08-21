@@ -18,10 +18,10 @@ README 給使用者；ARCHITECTURE 說設計；這份文件只定義新增／修
 ## 2. 新增一顆 skill
 
 ```bash
-mkdir -p commands-src/y-<skill-name>
-cat > commands-src/y-<skill-name>/SKILL.md <<'EOF'
+mkdir -p commands-src/q-<skill-name>
+cat > commands-src/q-<skill-name>/SKILL.md <<'EOF'
 ---
-name: y-<skill-name>
+name: q-<skill-name>
 description: 清楚說明做什麼，以及什麼情況應該觸發。
 ---
 
@@ -32,8 +32,8 @@ EOF
 bin/build.sh
 make test
 bin/skill-q sync       # optional local smoke test
-git add commands-src/y-<skill-name>
-git commit -m "add y-<skill-name> skill"
+git add commands-src/q-<skill-name>
+git commit -m "add q-<skill-name> skill"
 ```
 
 也可以把草稿交給 `.codex/skills/canonicalize-skill` 產生 canonical skill。
@@ -60,10 +60,10 @@ git status --short
 
 ## 4. Naming
 
-1. **skill-q 的所有技能一律使用 `y-` prefix**：`y-commit`、`y-review`、`y-summary`。沒有 prefix 的技能不進 `commands-src/`。
+1. **skill-q 的所有技能一律使用 `q-` prefix**：`q-plan`、`q-debug`、`q-review`。沒有 prefix 的技能不進 `commands-src/`。
 2. skill folder 與 frontmatter `name:` 必須相同。
 3. prefix 之後使用小寫 kebab-case，不要空白、底線或中文名稱。
-4. `y-` 之後用具體動詞或名詞說明用途；避免 `y-test`、`y-run` 這種過度泛用名稱。
+4. `q-` 之後用具體動詞或名詞說明用途；避免 `q-test`、`q-run` 這種過度泛用名稱。
 5. `description` 同時描述能力與 trigger；它會影響 agent discovery。
 6. 建議名稱不超過約 40 characters，以免 UI 截斷。
 
@@ -71,10 +71,11 @@ git status --short
 
 q 是 quick。skill-q 的技能要維持輕量：
 
-- 一顆技能只做一件事；需要多階段編排的工作不屬於這個 repo。
-- `SKILL.md` 盡量控制在 100 行以內，指令用短列表而不是長篇說明。
+- 一顆技能只做一個清楚工作；必要的 routing 或 specialist workflow 可以存在，但不要重新建立 heavyweight framework。
+- `SKILL.md` 優先維持約 100 行；需要明確 branches / safety boundaries 時可以超過，不能為了湊行數犧牲可執行性。
 - 預設不加 `scripts/` 或 `references/`；只有在明顯縮短 agent 執行路徑時才加。
 - 不要求使用者先做冗長設定；技能應該可以直接執行。
+- 優先使用 repository evidence、現有 tests/scripts 與按需探索，避免 broad scan 與 ceremony。
 
 ## 5. 新增 runtime
 
@@ -111,7 +112,7 @@ q 是 quick。skill-q 的技能要維持輕量：
 
 ## 7. 提交前 checklist
 
-- [ ] `name:` 與 directory name 一致
+- [ ] `name:` 與 directory name 一致且使用 `q-` prefix
 - [ ] `description` 有明確 trigger
 - [ ] `bin/build.sh` 成功
 - [ ] `make test` 成功（改動 `bin/`、`tests/`、`bin/targets/` 時改跑 `make test-full`）

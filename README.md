@@ -1,6 +1,6 @@
 # skill-q
 
-**q = quick。** skill-q 是一組刻意保持輕量、快速的技能（skills），全部以 `y-` 為 prefix，例如 `y-commit`、`y-review`。每顆技能都應該小、單一用途、能在一兩個步驟內完成，不追求大型 workflow。
+**q = quick。** skill-q 是一組刻意保持輕量、快速的技能（skills），全部以 `q-` 為 prefix，例如 `q-plan`、`q-debug`、`q-review`。每顆技能都應該單一用途、低 ceremony、能直接執行，不追求大型 workflow framework。
 
 這個 repository 把 canonical `SKILL.md` 技能安全地部署到 Claude Code、Codex CLI 與 OpenCode：**單一 source、generated artifacts、installation manifest、target adapters，以及可診斷／可更新／可安全移除的完整生命週期**。框架來自 [skill-x-starter](https://github.com/wahengchang/skill-x-starter)。
 
@@ -65,13 +65,14 @@ bin/skill-q sync       # optional local smoke test
 git add commands-src _shared
 ```
 
-repo 內只保留 `y-example` 作為安裝驗證與格式樣板；實際技能尚未加入。
+repo 內保留 `q-example` 作為安裝驗證與格式樣板。實際技能使用同一個 `q-` prefix。
 
 skill-q 的技能規則：
 
-- 所有技能名稱一律 `y-` 開頭，資料夾名與 frontmatter `name:` 相同。
-- 保持 quick：單一用途、`SKILL.md` 精簡，避免多階段流程與大量 bundled references。
+- 所有技能名稱一律 `q-` 開頭，資料夾名與 frontmatter `name:` 相同。
+- 保持 quick：單一用途、少 ceremony、按需探索；不要把 workflow framework 搬進單一 skill。
 - `description` 要同時寫清楚「做什麼」與「什麼時候觸發」。
+- 完成並驗證 repository change 的 skill，正常 handoff 到 `q-ship`；planning 與 optional review 例外見 `commands-src/AGENTS.md`。
 
 完整命名與提交規則見 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 

@@ -6,7 +6,7 @@ Write skills as compact executable workflow specifications, not essays. The agen
 
 ## Core style
 
-- Keep one skill focused on one job. Follow the repository quick rule: prefer under 100 lines.
+- Keep one skill focused on one job. Prefer around 100 lines when practical; clarity and correct branching matter more than a hard line limit.
 - Prefer short natural-language control flow over prose explanation or shell-like orchestration.
 - Use numbered steps for the main workflow. Each step should cause an action, decision, verification, or stop.
 - Put conditions next to the action they control: `If ...`, `Otherwise ...`, `Only when ...`, `Do not ...`, `Stop if ...`.
@@ -15,7 +15,27 @@ Write skills as compact executable workflow specifications, not essays. The agen
 - Keep reasoning in natural language; use commands or scripts for deterministic operations.
 - The agent controls tools; tools do not control the agent.
 - Do not encode the workflow as a large Bash/Python program inside `SKILL.md` when a short instruction is clearer.
-- Ask the user only when a missing choice can materially change scope, behavior, or output. Resolve non-critical details from repository conventions.
+- Ask the user only when a missing choice materially changes what they want. Resolve details from repository evidence and conventions whenever possible.
+
+## Handoff convention
+
+Keep skills independent. Do not invent a mandatory pipeline between skills unless the skill's job genuinely requires one.
+
+For a skill that changes repository content, once its work is complete and its own relevant verification passes, the normal handoff is:
+
+```text
+completed + verified work → q-ship
+```
+
+`q-ship` owns delivery. A preceding skill should not duplicate shipping ceremony, PR policy, or final delivery checks unless that behavior is explicitly part of the skill.
+
+Exceptions are intentional:
+
+- Planning skills (`q-plan`, `q-plan-*`) hand off to implementation, not directly to `q-ship`.
+- `q-review` is optional and read-only. A clean second opinion may hand off to `q-ship`; findings return to the implementer or `q-debug`.
+- A skill must not hand off unfinished or unverified work to `q-ship`.
+
+When a handoff exists, make the expected next step explicit near the end. Keep it short; do not create a separate artifact merely to record it.
 
 ## Progressive disclosure
 
@@ -32,7 +52,7 @@ Every skill starts with:
 
 ```markdown
 ---
-name: y-<name>
+name: q-<name>
 description: <what the skill does and when it should trigger>
 ---
 ```
@@ -85,7 +105,7 @@ Commands support the workflow rather than replace it. When a deterministic opera
 
 Before finishing a new or edited skill, verify:
 
-- Folder name and frontmatter `name` match and use the `y-` prefix.
+- Folder name and frontmatter `name` match and use the `q-` prefix.
 - `description` contains both capability and trigger.
 - The skill has one clear job and one obvious normal path.
 - Important branches and stop conditions are explicit.
@@ -94,4 +114,4 @@ Before finishing a new or edited skill, verify:
 - Deterministic work is delegated to commands/scripts when clearer.
 - Optional references/scripts exist only when they make execution shorter or more reliable.
 - The common path can be understood without unrelated repository documents.
-- The skill remains quick, compact, and directly executable.
+- The skill stays quick by avoiding unnecessary ceremony, broad scans, and duplicate workflow state.
