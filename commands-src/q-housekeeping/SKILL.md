@@ -1,11 +1,11 @@
 ---
 name: q-housekeeping
-description: Inspect and safely clean local Git branches, finished worktrees, and stale worktree metadata while preserving dirty, unmerged, active, protected, remote, or uncertain state; use when a repository needs local Git housekeeping after work has finished or when the user asks what can be safely removed.
+description: Inspect and safely clean local Git branches, finished worktrees, and stale worktree metadata while preserving dirty, unmerged, active, protected, remote, or uncertain state; use when a repository needs local Git housekeeping after merged work has finished or when the user asks what can be safely removed.
 ---
 
 # q-housekeeping
 
-Reduce local Git clutter without risking unfinished work. This is a standalone maintenance skill, not a post-ship pipeline stage.
+Reduce local Git clutter without risking unfinished work. Run it directly or as the optional post-merge handoff from `q-ship`; never make it a mandatory shipping stage.
 
 ## Instructions
 
