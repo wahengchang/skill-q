@@ -4,7 +4,7 @@
 set -euo pipefail
 
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-CLI="$ROOT/bin/skill-q"
+CLI="$ROOT/bin/skill-q-core"
 # shellcheck source=bin/lib/common.sh
 . "$ROOT/bin/lib/common.sh"
 # shellcheck source=bin/targets/targets.conf
@@ -42,8 +42,6 @@ selected="${SKILL_Q_ALL_AGENTS[*]}"
 [[ -n "$explicit" ]] && selected=$(sx_parse_agents "$explicit")
 [[ -n "$selected" ]] || sx_die 'no agents selected'
 
-# Return success when deleting the checkout would discard local content. This
-# mirrors the lifecycle CLI safety rule while allowing generated build outputs.
 checkout_has_local_content() {
   local root=$1 status path allowed skip entry
   status=$(git -C "$root" status --porcelain --untracked-files=all 2>/dev/null) || return 0
@@ -81,7 +79,6 @@ if (( ! assume_yes )) && [[ -t 0 && -t 1 ]]; then
   [[ "$reply" == [yY]* ]] || { echo 'Uninstall declined; nothing changed.'; exit 0; }
 fi
 
-# Keep the old checkout path as an ownership proof if the repository moved.
 legacy_roots=("$ROOT")
 if [[ -n "$RECORDED_ROOT" && "$RECORDED_ROOT" != "$ROOT" ]]; then
   legacy_roots+=("$RECORDED_ROOT")
@@ -102,19 +99,12 @@ owned_legacy_link() {
 legacy_skill_dirs() {
   case "$1" in
     claude) printf '%s\n' "$HOME/.claude/skills" ;;
-    codex)
-      # Sweep both the canonical and historical compatibility path regardless
-      # of the current SKILL_Q_CODEX_COMPAT setting.
-      printf '%s\n' "$HOME/.agents/skills" "$HOME/.codex/skills"
-      ;;
+    codex) printf '%s\n' "$HOME/.agents/skills" "$HOME/.codex/skills" ;;
     opencode) printf '%s\n' "$HOME/.config/opencode/skills" ;;
     *) return 1 ;;
   esac
 }
 
-# Let the lifecycle CLI remove manifest-owned paths and state first. A missing
-# manifest is expected for pre-manifest installations; the legacy sweep below
-# is sufficient in that case.
 if [[ -f "$MANIFEST" ]]; then
   cli_args=(uninstall --yes)
   [[ -n "$explicit" ]] && cli_args+=(--agents "$explicit")
