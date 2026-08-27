@@ -12,3 +12,4 @@ test-fast:
 # sync/bootstrap, or target adapters.
 test-full:
 	./tests/run.sh --full
+	bash ./tests/uninstall-legacy-regression.sh
