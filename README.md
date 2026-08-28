@@ -7,17 +7,39 @@
 ## 快速開始
 
 ```bash
-git clone <private-repo-url> ~/.skill-q
-cd ~/.skill-q
-./install.sh
+npx skills add wahengchang/skill-q --list
+npx skills add wahengchang/skill-q
 ```
 
-`install.sh` 等同 `bin/skill-q init`。它會偵測本機 agent，讓你確認要安裝哪些 runtime，然後 build、sync 並寫入 installation manifest。也可以直接指定：
+預設是 **project-local**，不會殘留在 global。只安裝指定技能並同步給三個常用 agent：
 
 ```bash
-bin/skill-q init --agents claude,codex,opencode --yes
+npx skills add wahengchang/skill-q \
+  --skill q-plan --skill q-debug --skill q-ship \
+  -a claude-code -a codex -a opencode
+```
+
+只有加 `-g` 才是 global；移除時 scope 也要一致：
+
+```bash
+npx skills add wahengchang/skill-q -g
+npx skills remove q-plan          # project-local
+npx skills remove -g q-plan       # global
+```
+
+> **同名安全：** skills CLI 目前仍有同名來源可能互相取代的已知問題。安裝前先用 `npx skills list` 和 `npx skills list -g` 檢查；不要讓另一個 repo 再發布相同的 `q-*` name。
+>
+> **OMP：** 目前沒有獨立 `omp` target；把 skill 安裝到 OMP 實際使用的 `claude-code`、`codex`、`opencode`。長時間運行的 session 安裝後應重開。
+
+## Legacy lifecycle
+
+原有 checkout-based installer 暫時保留，供既有使用者遷移：
+
+```bash
+git clone https://github.com/wahengchang/skill-q.git ~/.skill-q
+cd ~/.skill-q
+./install.sh
 bin/skill-q status
-bin/skill-q doctor --strict
 ```
 
 ## Lifecycle
@@ -40,8 +62,10 @@ bin/skill-q doctor --strict
 commands-src/<name>/SKILL.md   ← 唯一手動編輯的技能來源
 _shared/                       ← 共用 build input
         │
-        ▼ bin/build.sh
-commands/                      ← disposable canonical artifacts（gitignored）
+        ├── bin/build-registry.sh
+        │   └── skills/        ← tracked npx-skills distribution
+        └── bin/build.sh
+            └── commands/      ← legacy disposable artifacts（gitignored）
 opencode-commands/             ← disposable OpenCode v1 shims（gitignored）
         │
         ▼ bin/skill-q sync
@@ -52,17 +76,18 @@ opencode-commands/             ← disposable OpenCode v1 shims（gitignored）
 ~/.config/opencode/commands/   ← 僅 OpenCode v1
 ```
 
-**不要 commit `commands/` 或 `opencode-commands/`。** Fresh clone 會自己 build。支援檔案如 `scripts/`、`references/` 與 shared symlink assets 會在 build 時 materialize 成自包含 artifact。
+**commit `skills/`，但不要直接編輯它。不要 commit `commands/` 或 `opencode-commands/`。** 支援檔案會 materialize 進每顆 published skill，因此 `npx skills add --skill <name>` 安裝單顆技能仍是自包含的。
 
 ## 新增／修改技能
 
 在 Codex 中可以使用 repo-local `.codex/skills/canonicalize-skill`，或直接編輯 `commands-src/<name>/SKILL.md`：
 
 ```bash
+bin/build-registry.sh
 bin/build.sh
 make test
 bin/skill-q sync       # optional local smoke test
-git add commands-src _shared
+git add commands-src _shared skills
 ```
 
 repo 內保留 `q-example` 作為安裝驗證與格式樣板。實際技能使用同一個 `q-` prefix。

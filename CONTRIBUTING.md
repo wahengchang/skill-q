@@ -8,12 +8,13 @@ README 給使用者；ARCHITECTURE 說設計；這份文件只定義新增／修
 | --- | --- |
 | `commands-src/<name>/SKILL.md` | canonical skill source；**手動編輯這裡** |
 | `_shared/` | 所有 skills 共用的 tracked build input |
+| `skills/<name>/` | `npx skills` 公開發佈面；**build 後 commit，但不要手動編輯** |
 | `commands/` | build 產生的 canonical artifact；**不要編輯、不要 commit** |
 | `opencode-commands/` | transformed artifact；**不要編輯、不要 commit** |
 | `bin/targets/` | runtime metadata / adapters |
 | `tests/` | mechanism test suite；`tests/lib/harness.sh` 是共用 harness |
 
-一句話：**改 source → build → test → optional sync → commit source。**
+一句話：**改 source → build registry + legacy artifacts → test → optional sync → commit source 與 skills/。**
 
 ## 2. 新增一顆 skill
 
@@ -29,10 +30,11 @@ description: 清楚說明做什麼，以及什麼情況應該觸發。
 ...
 EOF
 
+bin/build-registry.sh
 bin/build.sh
 make test
 bin/skill-q sync       # optional local smoke test
-git add commands-src/q-<skill-name>
+git add commands-src/q-<skill-name> skills/q-<skill-name>
 git commit -m "add q-<skill-name> skill"
 ```
 
