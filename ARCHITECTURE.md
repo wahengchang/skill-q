@@ -9,11 +9,12 @@
 核心原則：
 
 1. **canonical source only**：技能作者只維護 `commands-src/`。
-2. **generated artifacts are disposable**：`commands/` 與 transformed artifacts 不進 Git。
-3. **deployment ownership is explicit**：manifest，而不是路徑猜測，是唯一 ownership proof。
-4. **runtime differences live at the edge**：共同 canonical build 與 target adapters 分離。
-5. **updates are conservative**：fetch + preview + fast-forward only；dirty/diverged 不自動處理。
-6. **quick means low ceremony**：skills 保持單一職責、按需探索、直接 handoff；不要把 heavyweight workflow state 搬回來。
+2. **published distribution is tracked**：`skills/` 是 `npx skills` 直接讀取的發佈面，由 `bin/build-registry.sh` 產生並進 Git。它不注入 `_shared/update-check-header.md`——npx 安裝出來的技能上方沒有 skill-q checkout，該 header 只會走到自己的 "找不到 repository" 分支。npx 使用者以重跑 `npx skills add` 更新。
+3. **legacy artifacts are disposable**：`commands/` 與 transformed artifacts 不進 Git。
+4. **legacy deployment ownership is explicit**：manifest，而不是路徑猜測，是 checkout-based installer 的 ownership proof。
+5. **runtime differences live at the edge**：共同 canonical build 與 target adapters 分離。
+6. **updates are conservative**：fetch + preview + fast-forward only；dirty/diverged 不自動處理。
+7. **quick means low ceremony**：skills 保持單一職責、按需探索、直接 handoff；不要把 heavyweight workflow state 搬回來。
 
 ## 2. Data flow
 
@@ -23,6 +24,7 @@ tracked source
 │ commands-src/<skill>/        │
 │ _shared/                     │
 └──────────────┬───────────────┘
+               ├── bin/build-registry.sh ──> skills/ (tracked, self-contained)
                │ bin/build.sh
                ▼
 ┌──────────────────────────────┐
