@@ -27,6 +27,13 @@ npx skills remove q-plan          # project-local
 npx skills remove -g q-plan       # global
 ```
 
+更新就是用同樣的 scope 重跑一次安裝；npx 安裝的技能不含 checkout-based 的更新檢查，也不需要 `bin/skill-q update`：
+
+```bash
+npx skills add wahengchang/skill-q          # project-local
+npx skills add wahengchang/skill-q -g       # global
+```
+
 > **同名安全：** skills CLI 目前仍有同名來源可能互相取代的已知問題。安裝前先用 `npx skills list` 和 `npx skills list -g` 檢查；不要讓另一個 repo 再發布相同的 `q-*` name。
 >
 > **OMP：** 目前沒有獨立 `omp` target；把 skill 安裝到 OMP 實際使用的 `claude-code`、`codex`、`opencode`。長時間運行的 session 安裝後應重開。
@@ -42,7 +49,7 @@ cd ~/.skill-q
 bin/skill-q status
 ```
 
-## Lifecycle
+以下 `bin/skill-q` 生命週期指令只屬於這條 checkout 路徑，npx 安裝不需要也不會有：
 
 | 指令 | 用途 |
 | --- | --- |
@@ -76,7 +83,9 @@ opencode-commands/             ← disposable OpenCode v1 shims（gitignored）
 ~/.config/opencode/commands/   ← 僅 OpenCode v1
 ```
 
-**commit `skills/`，但不要直接編輯它。不要 commit `commands/` 或 `opencode-commands/`。** 支援檔案會 materialize 進每顆 published skill，因此 `npx skills add --skill <name>` 安裝單顆技能仍是自包含的。
+**commit `skills/`，但不要直接編輯它。不要 commit `commands/` 或 `opencode-commands/`。** 支援檔案會 materialize 進每顆 published skill，因此 `npx skills add --skill <name>` 安裝單顆技能仍是自包含的。`skills/` 不注入 `_shared/update-check-header.md`；那個 header 只對 checkout 安裝有意義。
+
+`bin/build-registry.sh --check` 會比對 `skills/` 與 `commands-src/`（含檔案權限），`make test` 與 `make test-full` 都會先跑它，所以忘記 commit 重建結果會直接讓測試失敗。
 
 ## 新增／修改技能
 

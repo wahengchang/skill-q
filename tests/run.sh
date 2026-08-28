@@ -28,6 +28,126 @@ test_harness_terminates_a_stalled_test() {
   rg -q '1 failed' <<<"$output"
 }
 
+test_build_registry_publishes_self_contained_skills() {
+  local project="$TEST_ROOT/registry"
+  copy_project "$project"
+  mkdir -p "$project/commands-src/demo/scripts"
+  cat > "$project/commands-src/demo/SKILL.md" <<'EOF'
+---
+name: demo
+description: fixture
+---
+
+# Demo body
+
+## Provenance
+
+Where this skill came from.
+
+### Detail
+
+More maintenance history.
+
+## Keep
+
+Kept section.
+EOF
+  echo 'echo helper' > "$project/commands-src/demo/scripts/helper.sh"
+  chmod +x "$project/commands-src/demo/scripts/helper.sh"
+
+  "$project/bin/build-registry.sh" >/dev/null
+  local published="$project/skills/demo/SKILL.md"
+  rg -q '^# Demo body$' "$published"
+
+  # Provenance is repository maintenance history, so it never reaches the
+  # published skill; skipping stops at the next H2 rather than at EOF.
+  ! rg -q 'Provenance|maintenance history|^### Detail$' "$published"
+  rg -q '^## Keep$' "$published"
+  rg -q '^Kept section\.$' "$published"
+
+  # The npx surface deliberately omits the checkout-only update-check header:
+  # an installed skill has no skill-q repository above it.
+  ! rg -q '此區塊由 bin/build.sh' "$published"
+
+  # Support files are materialized, executable bits included, so a single
+  # `--skill demo` install is self-contained.
+  cmp "$project/commands-src/demo/scripts/helper.sh" "$project/skills/demo/scripts/helper.sh"
+  [[ -x "$project/skills/demo/scripts/helper.sh" ]]
+
+  # A second build is deterministic and leaves the tree in sync.
+  cp -a "$project/skills" "$project/first-registry"
+  "$project/bin/build-registry.sh" >/dev/null
+  diff -ru "$project/first-registry" "$project/skills"
+  "$project/bin/build-registry.sh" --check >/dev/null
+}
+
+test_build_registry_check_detects_drift() {
+  local project="$TEST_ROOT/registry-drift"
+  copy_project "$project"
+  "$project/bin/build-registry.sh" >/dev/null
+  "$project/bin/build-registry.sh" --check >/dev/null
+
+  # An edited source without a rebuild.
+  printf '\nDrifted.\n' >> "$project/commands-src/example-skill/SKILL.md"
+  if "$project/bin/build-registry.sh" --check >/dev/null 2>"$project/stale"; then
+    return 1
+  fi
+  rg -q 'Published skills/ is stale' "$project/stale"
+  "$project/bin/build-registry.sh" >/dev/null
+
+  # A published skill whose source is gone.
+  mkdir -p "$project/skills/ghost"
+  echo 'stale' > "$project/skills/ghost/SKILL.md"
+  if "$project/bin/build-registry.sh" --check >/dev/null 2>&1; then
+    return 1
+  fi
+  rm -rf "$project/skills/ghost"
+
+  # Content can match while the executable bit does not.
+  mkdir -p "$project/commands-src/example-skill/scripts"
+  echo 'echo helper' > "$project/commands-src/example-skill/scripts/helper.sh"
+  chmod +x "$project/commands-src/example-skill/scripts/helper.sh"
+  "$project/bin/build-registry.sh" >/dev/null
+  chmod -x "$project/skills/example-skill/scripts/helper.sh"
+  if "$project/bin/build-registry.sh" --check >/dev/null 2>"$project/modes"; then
+    return 1
+  fi
+  rg -q 'file-mode drift' "$project/modes"
+}
+
+test_build_registry_rejects_invalid_frontmatter_without_destroying_output() {
+  local project="$TEST_ROOT/registry-invalid"
+  copy_project "$project"
+  "$project/bin/build-registry.sh" >/dev/null
+  cp -a "$project/skills" "$project/expected-skills"
+
+  # A body-only file is reported as invalid frontmatter, not as a name
+  # mismatch against an empty name.
+  printf '# missing frontmatter\n\n---\n' > "$project/commands-src/example-skill/SKILL.md"
+  if "$project/bin/build-registry.sh" >/dev/null 2>"$project/stderr"; then
+    return 1
+  fi
+  rg -q 'Invalid frontmatter' "$project/stderr"
+
+  # Staging means a rejected build never touches the published tree.
+  diff -ru "$project/expected-skills" "$project/skills"
+
+  # A folder that disagrees with frontmatter `name:` is rejected too.
+  cat > "$project/commands-src/example-skill/SKILL.md" <<'EOF'
+---
+name: renamed
+description: fixture
+---
+
+# Body
+EOF
+  if "$project/bin/build-registry.sh" >/dev/null 2>"$project/mismatch"; then
+    return 1
+  fi
+  rg -q 'Skill name mismatch' "$project/mismatch"
+  diff -ru "$project/expected-skills" "$project/skills"
+}
+
 test_build_injects_header_and_support_files() {
   local project="$TEST_ROOT/build"
   copy_project "$project"
@@ -1033,6 +1153,9 @@ test_build_rejects_an_artifact_destination_outside_the_checkout() {
 
 run_test --fast 'harness terminates a stalled test' test_harness_terminates_a_stalled_test
 run_test --fast 'build injects once and copies support files' test_build_injects_header_and_support_files
+run_test --fast 'registry publishes self-contained skills without the checkout header' test_build_registry_publishes_self_contained_skills
+run_test --fast 'registry check detects content and mode drift' test_build_registry_check_detects_drift
+run_test --fast 'invalid registry build preserves published skills' test_build_registry_rejects_invalid_frontmatter_without_destroying_output
 run_test --fast 'invalid build preserves previous deployment' test_build_rejects_invalid_frontmatter_without_destroying_output
 run_test --fast 'build accepts crlf frontmatter' test_build_accepts_crlf_frontmatter
 run_test --fast 'build generates delegating opencode command shims' test_build_generates_opencode_command_shims

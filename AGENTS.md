@@ -1,10 +1,10 @@
 # Codex Development Instructions
 
 - skill-q ships quick, lightweight skills. Every skill in `commands-src/` is named with the `q-` prefix (`q-<name>`), and the folder name must match frontmatter `name:`. Keep each `SKILL.md` focused, low-ceremony, and directly executable.
-- `commands-src/` and `_shared/` are the only tracked skill build inputs. Skill content lives in `commands-src/<name>/SKILL.md`; `_shared/update-check-header.md` is inserted into every generated skill.
+- `commands-src/` and `_shared/` are the only tracked skill build inputs. Skill content lives in `commands-src/<name>/SKILL.md`; `_shared/update-check-header.md` is inserted into every artifact built by `bin/build.sh`. The published `skills/` tree deliberately omits it: an `npx skills` install has no skill-q checkout above it, so the header could only reach its own "repository not found" branch.
 - Generated `commands/` and `opencode-commands/` remain disposable legacy build outputs declared in `.gitignore`. The tracked `skills/` tree is the public `npx skills` distribution: never hand-edit it, but do commit the result of `bin/build-registry.sh`.
 - After changing a skill, run `bin/build-registry.sh` and `bin/build.sh`, then `make test` (the fast subset). Changes under `bin/`, `tests/`, or `bin/targets/` require `make test-full`.
-- A `## Provenance` section in a canonical source is maintenance history: `bin/build.sh` strips it from generated artifacts, so keep it in `commands-src/` only.
+- A `## Provenance` section in a canonical source is maintenance history: both `bin/build.sh` and `bin/build-registry.sh` strip it from generated artifacts, so keep it in `commands-src/` only.
 - Use `bin/skill-q sync` (or compatibility wrapper `bin/sync-skills.sh`) when you want to refresh local agent links.
 - Follow `CONTRIBUTING.md` and `ARCHITECTURE.md`; keep framework changes generic and do not hard-code one personal skill set.
 
