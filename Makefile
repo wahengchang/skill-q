@@ -20,3 +20,4 @@ test-fast:
 test-full:
 	./bin/build-registry.sh --check
 	./tests/run.sh --full
+	bash ./tests/uninstall-legacy-regression.sh

@@ -1,0 +1,4 @@
+# Historical skill names that were shipped by skill-q and later removed.
+# Runtime uninstall also derives names from local Git history; this file is the
+# fallback for shallow clones and archives where older commits are unavailable.
+y-example
